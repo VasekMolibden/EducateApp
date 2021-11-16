@@ -13,5 +13,7 @@ namespace EducateApp.Models
         }
 
         public DbSet<FormOfStudy> FormsOfStudy { get; set; }
+        public DbSet<Discipline> Disciplines { get; set; }
+        public DbSet<TypeOfTotal> TypesOfTotals { get; set; }
     }
 }

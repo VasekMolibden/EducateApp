@@ -1,13 +1,13 @@
-﻿@model EducateApp.Models.Data.FormOfStudy
+﻿@model EducateApp.Models.Data.TypeOfTotal
 
 @{
-    ViewData["Title"] = "Удаление - Формы обучения";
+    ViewData["Title"] = "Удаление - Виды промежуточной аттестации";
 }
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Главная</a></li>
-        <li class="breadcrumb-item"><a asp-controller="FormsOfStudy" asp-action="Index">Формы обучения</a></li>
+        <li class="breadcrumb-item"><a asp-controller="TypesOfTotals" asp-action="Index">Виды промежуточной аттестации</a></li>
         <li class="breadcrumb-item active">Удаление</li>
     </ol>
 </nav>
@@ -16,7 +16,7 @@
     <a class="btn text-dark" asp-action="Index" title="Вернуться к списку">
         <i class="fas fa-arrow-left"></i>
     </a>
-    Удаление формы  обучения
+    Удаление вида промежуточной аттестации
 </h3>
 
 <div>
@@ -27,10 +27,10 @@
     <hr />
     <dl class="row">
         <dt class="col-sm-3">
-            @Html.DisplayNameFor(model => model.FormOfEdu)
+            @Html.DisplayNameFor(model => model.CertificateName)
         </dt>
         <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.FormOfEdu)
+            @Html.DisplayFor(model => model.CertificateName)
         </dd>
     </dl>
 
