@@ -19,11 +19,11 @@ namespace EducateApp.Models.Data
         [Display(Name = "Название профессионального модуль")]
         public string ProfModule { get; set; }
 
-        //[Required(ErrorMessage = "Введите индекс")]
+        [Required(ErrorMessage = "Введите индекс")]
         [Display(Name = "Индекс")]
         public string Index { get; set; }
 
-        //[Required(ErrorMessage = "Введите название")]
+        [Required(ErrorMessage = "Введите название")]
         [Display(Name = "Имя")]
         public string Name { get; set; }
 

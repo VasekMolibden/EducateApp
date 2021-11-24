@@ -60,7 +60,6 @@ namespace EducateApp.Controllers
         // GET: Disciplines/Create
         public IActionResult Create()
         {
-            //ViewData["IdUser"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -73,7 +72,8 @@ namespace EducateApp.Controllers
 
             if (_context.Disciplines
                 .Where(f => f.IdUser == user.Id &&
-                    f.ProfModule == model.ProfModule).FirstOrDefault() != null)
+                 f.IndexProfModule == model.IndexProfModule &&
+                 f.ProfModule == model.ProfModule).FirstOrDefault() != null)
             {
                 ModelState.AddModelError("", "Введенный вид дисциплины уже существует");
             }
@@ -135,6 +135,17 @@ namespace EducateApp.Controllers
             if (id != discipline.Id)
             {
                 return NotFound();
+            }
+
+            IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+            if (_context.Disciplines
+                .Where(f => f.IdUser == user.Id &&
+                 f.IndexProfModule == model.IndexProfModule &&
+                 f.ProfModule == model.ProfModule &&
+                 f.Index == model.Index && f.Name == model.Name).FirstOrDefault() != null)
+            {
+                ModelState.AddModelError("", "Введенный вид дисциплины уже существует");
             }
 
             if (ModelState.IsValid)

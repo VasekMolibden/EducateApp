@@ -60,7 +60,6 @@ namespace EducateApp.Controllers
         // GET: TypesOfTotals/Create
         public IActionResult Create()
         {
-            //ViewData["IdUser"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -127,6 +126,15 @@ namespace EducateApp.Controllers
             if (id != typeOfTotal.Id)
             {
                 return NotFound();
+            }
+
+            IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+            if (_context.TypesOfTotals
+                .Where(f => f.IdUser == user.Id &&
+                    f.CertificateName == model.CertificateName).FirstOrDefault() != null)
+            {
+                ModelState.AddModelError("", "Введенный вид промежуточной аттестации уже существует");
             }
 
             if (ModelState.IsValid)
