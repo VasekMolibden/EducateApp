@@ -73,7 +73,9 @@ namespace EducateApp.Controllers
             if (_context.Disciplines
                 .Where(f => f.IdUser == user.Id &&
                  f.IndexProfModule == model.IndexProfModule &&
-                 f.ProfModule == model.ProfModule).FirstOrDefault() != null)
+                 f.ProfModule == model.ProfModule &&
+                 f.Index == model.Index && f.Name == model.Name &&
+                 f.ShortName == model.ShortName).FirstOrDefault() != null)
             {
                 ModelState.AddModelError("", "Введенный вид дисциплины уже существует");
             }
@@ -143,7 +145,8 @@ namespace EducateApp.Controllers
                 .Where(f => f.IdUser == user.Id &&
                  f.IndexProfModule == model.IndexProfModule &&
                  f.ProfModule == model.ProfModule &&
-                 f.Index == model.Index && f.Name == model.Name).FirstOrDefault() != null)
+                 f.Index == model.Index && f.Name == model.Name &&
+                 f.ShortName == model.ShortName).FirstOrDefault() != null)
             {
                 ModelState.AddModelError("", "Введенный вид дисциплины уже существует");
             }

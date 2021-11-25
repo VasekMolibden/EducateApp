@@ -16,7 +16,7 @@ namespace EducateApp.Models.Data
         public string IndexProfModule { get; set; }
 
         [Required(ErrorMessage = "Введите название профессионального модуля")]
-        [Display(Name = "Название профессионального модуль")]
+        [Display(Name = "Профессиональный модуль")]
         public string ProfModule { get; set; }
 
         [Required(ErrorMessage = "Введите индекс")]
@@ -24,7 +24,7 @@ namespace EducateApp.Models.Data
         public string Index { get; set; }
 
         [Required(ErrorMessage = "Введите название")]
-        [Display(Name = "Имя")]
+        [Display(Name = "Название")]
         public string Name { get; set; }
 
         //[Required(ErrorMessage = "Введите краткое название")]
