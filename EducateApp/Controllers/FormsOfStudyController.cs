@@ -1,5 +1,6 @@
 ﻿using EducateApp.Models;
 using EducateApp.Models.Data;
+using EducateApp.Models.Enums;
 using EducateApp.ViewModels.FormsOfStudy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -25,19 +26,27 @@ namespace EducateApp.Controllers
         }
 
         // GET: FormsOfStudy
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(FormOfStudySortState sortOrder = FormOfStudySortState.FormOfEduAsc)
         {
             // находим информацию о пользователе, который вошел в систему по его имени
             IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
             // через контекст данных получаем доступ к таблице базы данных FormsOfStudy
-            var appCtx = _context.FormsOfStudy
+            //var appCtx = _context.FormsOfStudy
+            var formsOfStudy = _context.FormsOfStudy
                 .Include(f => f.User)               // и связываем с таблицей пользователи через класс User
-                .Where(f => f.IdUser == user.Id)    // устанавливается условие с выбором записей форм обучения текущего пользователя по его Id
-                .OrderBy(f => f.FormOfEdu);         // сортируем все записи по имени форм обучения
+                .Where(f => f.IdUser == user.Id);     // устанавливается условие с выбором записей форм обучения текущего пользователя по его Id
+
+            ViewData["FormOfEduSort"] = sortOrder == FormOfStudySortState.FormOfEduAsc ? FormOfStudySortState.FormOfEduDesc : FormOfStudySortState.FormOfEduAsc;
+
+            formsOfStudy = sortOrder switch
+            {
+                FormOfStudySortState.FormOfEduDesc => formsOfStudy.OrderByDescending(s => s.FormOfEdu),
+                _ => formsOfStudy.OrderBy(s => s.FormOfEdu),
+            };
 
             // возвращаем в представление полученный список записей
-            return View(await appCtx.ToListAsync());
+            return View(await formsOfStudy.AsNoTracking().ToListAsync());
         }
 
         // GET: FormsOfStudy/Create

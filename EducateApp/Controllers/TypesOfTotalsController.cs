@@ -1,5 +1,6 @@
 ﻿using EducateApp.Models;
 using EducateApp.Models.Data;
+using EducateApp.Models.Enums;
 using EducateApp.ViewModels.TypesOfTotals;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -23,19 +24,26 @@ namespace EducateApp.Controllers
         }
 
         // GET: TypesOfTotals
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(TypeOfTotalSortState sortOrder = TypeOfTotalSortState.CertificateNameAsc)
         {
             // находим информацию о пользователе, который вошел в систему по его имени
             IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
             // через контекст данных получаем доступ к таблице
-            var appCtx = _context.TypesOfTotals
+            var typesOfTotals = _context.TypesOfTotals
                 .Include(i => i.User)
-                .Where(w => w.IdUser == user.Id)
-                .OrderBy(o => o.CertificateName);
+                .Where(w => w.IdUser == user.Id);
+
+            ViewData["CertificateNameSort"] = sortOrder == TypeOfTotalSortState.CertificateNameAsc ? TypeOfTotalSortState.CertificateNameDesc : TypeOfTotalSortState.CertificateNameAsc;
+
+            typesOfTotals = sortOrder switch
+                {
+                    TypeOfTotalSortState.CertificateNameDesc => typesOfTotals.OrderByDescending(s => s.CertificateName),
+                    _ => typesOfTotals.OrderBy(s => s.CertificateName),
+                };
 
             // возвращаем в представление полученный список записей
-            return View(await appCtx.ToListAsync());
+            return View(await typesOfTotals.AsNoTracking().ToListAsync());
         }
 
         // GET: TypesOfTotals/Create
