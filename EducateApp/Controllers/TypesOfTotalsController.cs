@@ -38,25 +38,6 @@ namespace EducateApp.Controllers
             return View(await appCtx.ToListAsync());
         }
 
-        // GET: TypesOfTotals/Details/5
-        public async Task<IActionResult> Details(short? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var typeOfTotal = await _context.TypesOfTotals
-                .Include(t => t.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (typeOfTotal == null)
-            {
-                return NotFound();
-            }
-
-            return View(typeOfTotal);
-        }
-
         // GET: TypesOfTotals/Create
         public IActionResult Create()
         {
@@ -189,6 +170,25 @@ namespace EducateApp.Controllers
             _context.TypesOfTotals.Remove(typeOfTotal);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: TypesOfTotals/Details/5
+        public async Task<IActionResult> Details(short? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var typeOfTotal = await _context.TypesOfTotals
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (typeOfTotal == null)
+            {
+                return NotFound();
+            }
+
+            return PartialView(typeOfTotal);
         }
 
         private bool TypeOfTotalExists(short id)

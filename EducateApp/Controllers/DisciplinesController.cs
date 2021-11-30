@@ -1,10 +1,13 @@
-﻿using EducateApp.Models;
+﻿using ClosedXML.Excel;
+using EducateApp.Models;
 using EducateApp.Models.Data;
 using EducateApp.ViewModels.Disciplines;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,25 +39,6 @@ namespace EducateApp.Controllers
 
             // возвращаем в представление полученный список записей
             return View(await appCtx.ToListAsync());
-        }
-
-        // GET: Disciplines/Details/5
-        public async Task<IActionResult> Details(short? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var discipline = await _context.Disciplines
-                .Include(d => d.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (discipline == null)
-            {
-                return NotFound();
-            }
-
-            return View(discipline);
         }
 
         // GET: Disciplines/Create
@@ -207,6 +191,88 @@ namespace EducateApp.Controllers
             _context.Disciplines.Remove(discipline);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Disciplines/Details/5
+        public async Task<IActionResult> Details(short? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var discipline = await _context.Disciplines
+                .Include(d => d.User)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (discipline == null)
+            {
+                return NotFound();
+            }
+
+            return PartialView(discipline);
+        }
+
+        public async Task<FileResult> DownloadPattern()
+        {
+            IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+            // выбираем из базы данных все специальности текущего пользователя
+            var appCtx = _context.Disciplines
+                .Include(s => s.User)
+                .Where(w => w.IdUser == user.Id)
+                .OrderBy(f => f.Name)    // сортируем записи
+                .ThenBy(f => f.IndexProfModule);
+
+            int i = 1;      // счетчик
+
+            IXLRange rngBorder;     // объект для работы с диапазонами в Excel (выделение групп ячеек)
+
+            // создание книги Excel
+            using (XLWorkbook workbook = new(XLEventTracking.Disabled))
+            {
+                // для каждой специальности 
+                foreach (Discipline discipline in appCtx)
+                {
+                    // добавить лист в книгу Excel
+                    // с названием 3 символа формы обучения и кода специальности
+                    IXLWorksheet worksheet = workbook.Worksheets
+                        .Add($"Дисциплины");
+
+                    // заголовки у столбцов
+                    worksheet.Cell("A" + i).Value = "Индекс профессионального модуля";
+                    worksheet.Cell("B" + i).Value = "Профессиональный модуль";
+                    worksheet.Cell("C" + i).Value = "Индекс";
+                    worksheet.Cell("D" + i).Value = "Название";
+                    worksheet.Cell("E" + i).Value = "Краткое название";
+
+                    //i++;
+
+                    // устанавливаем внешние границы для диапазона A4:F4
+                    rngBorder = worksheet.Range("A1:E1");       // создание диапазона (выделения ячеек)
+                    rngBorder.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;       // для диапазона задаем внешнюю границу
+
+                    // на листе для столбцов задаем значение ширины по содержимому
+                    worksheet.Columns().AdjustToContents();
+
+                    // счетчик "обнуляем"
+                    i = 1;
+                }
+
+                // создаем стрим
+                using (MemoryStream stream = new())
+                {
+                    // помещаем в стрим созданную книгу
+                    workbook.SaveAs(stream);
+                    stream.Flush();
+
+                    // возвращаем файл определенного типа
+                    return new FileContentResult(stream.ToArray(),
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    {
+                        FileDownloadName = $"disciplines_{DateTime.UtcNow.ToShortDateString()}.xlsx"     //в названии файла указываем таблицу и текущую дату
+                    };
+                }
+            }
         }
 
         private bool DisciplineExists(short id)
