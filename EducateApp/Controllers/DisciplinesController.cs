@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using EducateApp.Models;
 using EducateApp.Models.Data;
+using EducateApp.Models.Enums;
 using EducateApp.ViewModels.Disciplines;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -26,19 +27,89 @@ namespace EducateApp.Controllers
         }
 
         // GET: Disciplines
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string indexProfModule, string profModule, string index, 
+            string name, string shortName, int page = 1,
+            DisciplineSortState sortOrder = DisciplineSortState.IndexProfModuleAsc)
         {
             // находим информацию о пользователе, который вошел в систему по его имени
             IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-            // через контекст данных получаем доступ к таблице
-            var appCtx = _context.Disciplines
-                .Include(d => d.User)
-                .Where(w => w.IdUser == user.Id)
-                .OrderBy(o => o.ProfModule);
+            int pageSize = 10;
 
-            // возвращаем в представление полученный список записей
-            return View(await appCtx.ToListAsync());
+            //фильтрация
+            IQueryable<Discipline> disciplines = _context.Disciplines
+                .Include(d => d.User)
+                .Where(w => w.IdUser == user.Id);
+
+            if (!String.IsNullOrEmpty(indexProfModule))
+            {
+                disciplines = disciplines.Where(p => p.IndexProfModule.Contains(indexProfModule));
+            }
+            if (!String.IsNullOrEmpty(profModule))
+            {
+                disciplines = disciplines.Where(p => p.ProfModule.Contains(profModule));
+            }
+            if (!String.IsNullOrEmpty(index))
+            {
+                disciplines = disciplines.Where(p => p.Index.Contains(index));
+            }
+            if (!String.IsNullOrEmpty(name))
+            {
+                disciplines = disciplines.Where(p => p.Name.Contains(name));
+            }
+            if (!String.IsNullOrEmpty(shortName))
+            {
+                disciplines = disciplines.Where(p => p.ShortName.Contains(shortName));
+            }
+
+            // сортировка
+            switch (sortOrder)
+            {
+                case DisciplineSortState.IndexProfModuleDesc:
+                    disciplines = disciplines.OrderByDescending(s => s.IndexProfModule);
+                    break;
+                case DisciplineSortState.ProfModuleAsc:
+                    disciplines = disciplines.OrderByDescending(s => s.ProfModule);
+                    break;
+                case DisciplineSortState.ProfModuleDesc:
+                    disciplines = disciplines.OrderByDescending(s => s.ProfModule);
+                    break;
+                case DisciplineSortState.IndexAsc:
+                    disciplines = disciplines.OrderByDescending(s => s.Index);
+                    break;
+                case DisciplineSortState.IndexDesc:
+                    disciplines = disciplines.OrderByDescending(s => s.Index);
+                    break;
+                case DisciplineSortState.NameAsc:
+                    disciplines = disciplines.OrderBy(s => s.Name);
+                    break;
+                case DisciplineSortState.NameDesc:
+                    disciplines = disciplines.OrderByDescending(s => s.Name);
+                    break;
+                case DisciplineSortState.ShortNameAsc:
+                    disciplines = disciplines.OrderBy(s => s.ShortName);
+                    break;
+                case DisciplineSortState.ShortNameDesc:
+                    disciplines = disciplines.OrderByDescending(s => s.ShortName);
+                    break;
+                default:
+                    disciplines = disciplines.OrderBy(s => s.IndexProfModule);
+                    break;
+            }
+
+            // пагинация
+            var count = await disciplines.CountAsync();
+            var items = await disciplines.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            // формируем модель представления
+            IndexDisciplineViewModel viewModel = new()
+            {
+                PageViewModel = new(count, page, pageSize),
+                SortDisciplineViewModel = new(sortOrder),
+                FilterDisciplineViewModel = new(indexProfModule, profModule, index, name, shortName),
+                Disciplines = items
+            };
+            return View(viewModel);
         }
 
         // GET: Disciplines/Create
