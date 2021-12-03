@@ -8,13 +8,13 @@
         public string SelectedName { get; private set; }
         public string SelectedShortName { get; private set; }
 
-        public FilterDisciplineViewModel(string IndexProfModule, string ProfModule, string Index, string Name, string ShortName)
+        public FilterDisciplineViewModel(string indexProfModule, string profModule, string index, string name, string shortName)
         {
-            SelectedIndexProfModule = IndexProfModule;
-            SelectedProfModule = ProfModule;
-            SelectedIndex = Index;
-            SelectedName = Name;
-            SelectedShortName = ShortName;
+            SelectedIndexProfModule = indexProfModule;
+            SelectedProfModule = profModule;
+            SelectedIndex = index;
+            SelectedName = name;
+            SelectedShortName = shortName;
         }
     }
 }

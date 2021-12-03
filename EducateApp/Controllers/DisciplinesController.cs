@@ -69,13 +69,13 @@ namespace EducateApp.Controllers
                     disciplines = disciplines.OrderByDescending(s => s.IndexProfModule);
                     break;
                 case DisciplineSortState.ProfModuleAsc:
-                    disciplines = disciplines.OrderByDescending(s => s.ProfModule);
+                    disciplines = disciplines.OrderBy(s => s.ProfModule);
                     break;
                 case DisciplineSortState.ProfModuleDesc:
                     disciplines = disciplines.OrderByDescending(s => s.ProfModule);
                     break;
                 case DisciplineSortState.IndexAsc:
-                    disciplines = disciplines.OrderByDescending(s => s.Index);
+                    disciplines = disciplines.OrderBy(s => s.Index);
                     break;
                 case DisciplineSortState.IndexDesc:
                     disciplines = disciplines.OrderByDescending(s => s.Index);
